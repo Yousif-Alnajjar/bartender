@@ -1,0 +1,94 @@
+/* Basic styling - plain and functional */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* Status Messages */
+.status-container {
+    margin-bottom: 30px;
+    min-height: 60px;
+}
+
+#pour-status,
+#refill-status {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#pour-status {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 2px solid #1976d2;
+}
+
+#refill-status {
+    background-color: #fff3e0;
+    color: #f57c00;
+    border: 2px solid #f57c00;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Drink Buttons */
+.drinks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.drink-btn {
+    padding: 20px;
+    font-size: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.drink-btn:hover {
+    background-color: #45a049;
+}
+
+.drink-btn:active {
+    background-color: #3d8b40;
+}
+
+.drink-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/* Touch-friendly sizing for Pi touchscreen */
+@media (max-width: 800px) {
+    .drink-btn {
+        padding: 25px;
+        font-size: 22px;
+    }
+}

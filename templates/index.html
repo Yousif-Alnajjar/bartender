@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bartender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Bartender</h1>
+
+        <!-- Status Messages -->
+        <div class="status-container">
+            <p id="pour-status" class="hidden">Pouring: <span id="current-drink"></span></p>
+            <p id="refill-status" class="hidden">Refilling: <span id="refill-reservoirs"></span></p>
+        </div>
+
+        <!-- Drink Buttons -->
+        <div class="drinks-container">
+            <button class="drink-btn" onclick="pourDrink('Vodka Cranberry')">
+                Vodka Cranberry
+            </button>
+            <button class="drink-btn" onclick="pourDrink('Screwdriver')">
+                Screwdriver
+            </button>
+            <button class="drink-btn" onclick="pourDrink('Rum Punch')">
+                Rum Punch
+            </button>
+            <button class="drink-btn" onclick="pourDrink('Madras')">
+                Madras
+            </button>
+            <button class="drink-btn" onclick="pourDrink('Bay Breeze')">
+                Bay Breeze
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
