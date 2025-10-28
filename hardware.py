@@ -273,6 +273,15 @@ class BartenderHardware:
                     self.logger.warning(f"Refill timeout for reservoir {reservoir_num}")
                     break
 
+                # In simulation mode, gradually fill reservoir
+                if self.simulation_mode and ml_needed > 0:
+                    # Simulate filling at pump flow rate
+                    fill_rate_per_check = (config.PUMP_FLOW_RATE / 60) * 0.5  # ml per 0.5s
+                    self.reservoir_levels[reservoir_num] = min(
+                        self.reservoir_levels[reservoir_num] + fill_rate_per_check,
+                        config.RESERVOIR_CAPACITY_ML
+                    )
+
                 # Check float switch
                 if self.read_float_switch(reservoir_num):
                     self.logger.info(f"Reservoir {reservoir_num} full (float switch)")
