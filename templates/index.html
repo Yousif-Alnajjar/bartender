@@ -8,30 +8,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>Smart Bartender</h1>
-
-        <!-- Status Messages -->
-        <div class="status-container">
-            <p id="pour-status" class="hidden">Pouring: <span id="current-drink"></span></p>
-            <p id="refill-status" class="hidden">Refilling: <span id="refill-reservoirs"></span></p>
-        </div>
-
         <!-- Drink Buttons -->
         <div class="drinks-container">
-            <button class="drink-btn" onclick="pourDrink('Vodka Cranberry')">
-                Vodka Cranberry
+            <button class="drink-btn" data-drink="Vodka Cranberry" onclick="pourDrink('Vodka Cranberry')">
+                <span class="drink-name">Vodka Cranberry</span>
+                <span class="pouring-text">Pouring...</span>
             </button>
-            <button class="drink-btn" onclick="pourDrink('Screwdriver')">
-                Screwdriver
+            <button class="drink-btn" data-drink="Screwdriver" onclick="pourDrink('Screwdriver')">
+                <span class="drink-name">Screwdriver</span>
+                <span class="pouring-text">Pouring...</span>
             </button>
-            <button class="drink-btn" onclick="pourDrink('Rum Punch')">
-                Rum Punch
+            <button class="drink-btn" data-drink="Rum Punch" onclick="pourDrink('Rum Punch')">
+                <span class="drink-name">Rum Punch</span>
+                <span class="pouring-text">Pouring...</span>
             </button>
-            <button class="drink-btn" onclick="pourDrink('Madras')">
-                Madras
+            <button class="drink-btn" data-drink="Madras" onclick="pourDrink('Madras')">
+                <span class="drink-name">Madras</span>
+                <span class="pouring-text">Pouring...</span>
             </button>
-            <button class="drink-btn" onclick="pourDrink('Bay Breeze')">
-                Bay Breeze
+            <button class="drink-btn" data-drink="Bay Breeze" onclick="pourDrink('Bay Breeze')">
+                <span class="drink-name">Bay Breeze</span>
+                <span class="pouring-text">Pouring...</span>
             </button>
         </div>
     </div>

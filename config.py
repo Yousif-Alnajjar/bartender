@@ -54,7 +54,7 @@ REFILL_TIMEOUT = 120             # Maximum seconds for refill operation
 
 # Server Settings
 HOST = '0.0.0.0'                 # Listen on all network interfaces
-PORT = 5000                      # Flask server port
+PORT = 5001                      # Flask server port
 DEBUG = False                    # Set to True only during development
 
 # GPIO Settings (for Raspberry Pi 5)

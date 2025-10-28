@@ -15,29 +15,25 @@ async function updateStatus() {
         const response = await fetch('/api/status');
         const data = await response.json();
 
-        // Update pour status
+        const buttons = document.querySelectorAll('.drink-btn');
+
+        // Update button states based on pouring status
         if (data.pouring && data.current_drink) {
-            document.getElementById('pour-status').classList.remove('hidden');
-            document.getElementById('current-drink').textContent = data.current_drink;
-            disableAllButtons();
+            buttons.forEach(button => {
+                const drinkName = button.getAttribute('data-drink');
+                if (drinkName === data.current_drink) {
+                    button.classList.add('pouring');
+                    button.disabled = true;
+                } else {
+                    button.classList.remove('pouring');
+                    button.disabled = true;
+                }
+            });
         } else {
-            document.getElementById('pour-status').classList.add('hidden');
-            enableAllButtons();
-        }
-
-        // Update refill status
-        const refillingReservoirs = [];
-        for (let i = 1; i <= 4; i++) {
-            if (data.refilling[i]) {
-                refillingReservoirs.push(`Reservoir ${i}`);
-            }
-        }
-
-        if (refillingReservoirs.length > 0) {
-            document.getElementById('refill-status').classList.remove('hidden');
-            document.getElementById('refill-reservoirs').textContent = refillingReservoirs.join(', ');
-        } else {
-            document.getElementById('refill-status').classList.add('hidden');
+            buttons.forEach(button => {
+                button.classList.remove('pouring');
+                button.disabled = false;
+            });
         }
 
     } catch (error) {
@@ -68,22 +64,3 @@ async function pourDrink(drinkName) {
     }
 }
 
-/**
- * Disable all drink buttons
- */
-function disableAllButtons() {
-    const buttons = document.querySelectorAll('.drink-btn');
-    buttons.forEach(button => {
-        button.disabled = true;
-    });
-}
-
-/**
- * Enable all drink buttons
- */
-function enableAllButtons() {
-    const buttons = document.querySelectorAll('.drink-btn');
-    buttons.forEach(button => {
-        button.disabled = false;
-    });
-}

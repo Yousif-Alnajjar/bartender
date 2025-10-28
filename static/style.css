@@ -1,94 +1,137 @@
-/* Basic styling - plain and functional */
+/* Optimized for 1920x440 landscape display with responsive fallback */
 
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
-    background-color: #f5f5f5;
+    padding: 0;
+    background-color: #2c3e50;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    background: #34495e;
+    padding: 0;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
+/* Fixed height for wide landscape displays */
+@media (min-width: 1800px) and (max-height: 600px) {
+    body {
+        height: 100vh;
+    }
+
+    .container {
+        height: 100vh;
+    }
 }
 
-/* Status Messages */
-.status-container {
-    margin-bottom: 30px;
-    min-height: 60px;
-}
-
-#pour-status,
-#refill-status {
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 4px;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-#pour-status {
-    background-color: #e3f2fd;
-    color: #1976d2;
-    border: 2px solid #1976d2;
-}
-
-#refill-status {
-    background-color: #fff3e0;
-    color: #f57c00;
-    border: 2px solid #f57c00;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Drink Buttons */
+/* Drink Buttons - Full Screen Layout */
 .drinks-container {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 40px;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
 .drink-btn {
-    padding: 20px;
-    font-size: 20px;
-    background-color: #4CAF50;
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+    height: 200px;
+    font-size: clamp(18px, 2vw, 28px);
+    font-weight: bold;
+    background: linear-gradient(to bottom, #27ae60, #229954);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Button text states */
+.drink-btn .drink-name {
+    display: block;
+}
+
+.drink-btn .pouring-text {
+    display: none;
+}
+
+.drink-btn.pouring .drink-name {
+    display: none;
+}
+
+.drink-btn.pouring .pouring-text {
+    display: block;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Force horizontal row on wide landscape displays */
+@media (min-width: 1800px) and (max-height: 600px) {
+    .drinks-container {
+        flex-wrap: nowrap;
+        padding: 0 20px 20px 20px;
+    }
+
+    .drink-btn {
+        min-width: 0;
+    }
+}
+
+/* Stack vertically on narrow/portrait screens */
+@media (max-width: 800px) {
+    .drinks-container {
+        flex-direction: column;
+    }
+
+    .drink-btn {
+        min-width: 0;
+        padding: 30px 20px;
+    }
 }
 
 .drink-btn:hover {
-    background-color: #45a049;
+    background: linear-gradient(to bottom, #2ecc71, #27ae60);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
 .drink-btn:active {
-    background-color: #3d8b40;
+    background: linear-gradient(to bottom, #229954, #1e8449);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .drink-btn:disabled {
-    background-color: #cccccc;
-    color: #666666;
+    background: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    color: #bdc3c7;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Touch-friendly sizing for Pi touchscreen */
-@media (max-width: 800px) {
-    .drink-btn {
-        padding: 25px;
-        font-size: 22px;
-    }
+.drink-btn.pouring {
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    cursor: default;
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.5);
 }
