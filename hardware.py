@@ -9,7 +9,7 @@ import threading
 from typing import Dict, Optional
 
 try:
-    from gpiozero import OutputDevice, InputDevice
+    from gpiozero import LED
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
@@ -86,19 +86,20 @@ class BartenderHardware:
             return
 
         try:
-            # Initialize pumps (active HIGH)
+            # Initialize pumps (using LED = simple on/off)
             for pump_num, pin in config.PUMP_PINS.items():
-                self.pumps[pump_num] = OutputDevice(pin, active_high=True, initial_value=False)
+                self.pumps[pump_num] = LED(pin)
                 self.logger.info(f"Pump {pump_num} on GPIO {pin} initialized (OFF)")
 
-            # Initialize valves (active HIGH)
+            # Initialize valves (using LED = simple on/off)
             for valve_num, pin in config.VALVE_PINS.items():
-                self.valves[valve_num] = OutputDevice(pin, active_high=True, initial_value=False)
+                self.valves[valve_num] = LED(pin)
                 self.logger.info(f"Valve {valve_num} on GPIO {pin} initialized (OFF)")
 
             # Initialize float switches (with pull-up resistors)
             for sensor_num, pin in config.FLOAT_PINS.items():
-                self.floats[sensor_num] = InputDevice(pin, pull_up=True)
+                from gpiozero import Button
+                self.floats[sensor_num] = Button(pin, pull_up=True)
                 self.logger.info(f"Float switch {sensor_num} on GPIO {pin} initialized")
 
             self.logger.info("All GPIO pins initialized successfully with gpiozero")
@@ -186,7 +187,7 @@ class BartenderHardware:
 
         try:
             # HIGH (1) = level OK, LOW (0) = level low
-            return self.floats[sensor_num].is_active
+            return self.floats[sensor_num].is_pressed
         except Exception as e:
             self.logger.error(f"Failed to read float switch {sensor_num}: {e}")
             return True  # Assume OK on error

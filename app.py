@@ -35,7 +35,7 @@ status = {
 }
 
 # Test mode tracking
-test_status = {
+test_state = {
     "valve_active": False,
     "pump_active": False,
     "valve_timer": None,
@@ -229,7 +229,7 @@ def test_page():
 @app.route('/api/test/status')
 def test_status():
     """Get test mode status"""
-    return jsonify(test_status)
+    return jsonify(test_state)
 
 
 @app.route('/api/test/valve/start', methods=['POST'])
@@ -239,24 +239,24 @@ def test_valve_start():
 
     def valve_auto_stop():
         time.sleep(60)
-        if test_status["valve_active"]:
+        if test_state["valve_active"]:
             hw.close_valve(1)
-            test_status["valve_active"] = False
-            test_status["valve_timer"] = None
+            test_state["valve_active"] = False
+            test_state["valve_timer"] = None
             logger.info("Test valve auto-stopped after 60s")
 
     # Stop existing timer if any
-    if test_status["valve_timer"]:
-        test_status["valve_timer"] = None
+    if test_state["valve_timer"]:
+        test_state["valve_timer"] = None
 
     # Open valve
     hw.open_valve(1)
-    test_status["valve_active"] = True
+    test_state["valve_active"] = True
 
     # Start timer thread
     timer = threading.Thread(target=valve_auto_stop, daemon=True)
     timer.start()
-    test_status["valve_timer"] = timer
+    test_state["valve_timer"] = timer
 
     logger.info("Test valve started")
     return jsonify({"message": "Valve started"}), 200
@@ -266,8 +266,8 @@ def test_valve_start():
 def test_valve_stop():
     """Stop valve immediately"""
     hw.close_valve(1)
-    test_status["valve_active"] = False
-    test_status["valve_timer"] = None
+    test_state["valve_active"] = False
+    test_state["valve_timer"] = None
 
     logger.info("Test valve stopped")
     return jsonify({"message": "Valve stopped"}), 200
@@ -280,24 +280,24 @@ def test_pump_start():
 
     def pump_auto_stop():
         time.sleep(60)
-        if test_status["pump_active"]:
+        if test_state["pump_active"]:
             hw.deactivate_pump(1)
-            test_status["pump_active"] = False
-            test_status["pump_timer"] = None
+            test_state["pump_active"] = False
+            test_state["pump_timer"] = None
             logger.info("Test pump auto-stopped after 60s")
 
     # Stop existing timer if any
-    if test_status["pump_timer"]:
-        test_status["pump_timer"] = None
+    if test_state["pump_timer"]:
+        test_state["pump_timer"] = None
 
     # Activate pump
     hw.activate_pump(1)
-    test_status["pump_active"] = True
+    test_state["pump_active"] = True
 
     # Start timer thread
     timer = threading.Thread(target=pump_auto_stop, daemon=True)
     timer.start()
-    test_status["pump_timer"] = timer
+    test_state["pump_timer"] = timer
 
     logger.info("Test pump started")
     return jsonify({"message": "Pump started"}), 200
@@ -307,8 +307,8 @@ def test_pump_start():
 def test_pump_stop():
     """Stop pump immediately"""
     hw.deactivate_pump(1)
-    test_status["pump_active"] = False
-    test_status["pump_timer"] = None
+    test_state["pump_active"] = False
+    test_state["pump_timer"] = None
 
     logger.info("Test pump stopped")
     return jsonify({"message": "Pump stopped"}), 200
