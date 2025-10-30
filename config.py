@@ -12,7 +12,7 @@ PUMP_PINS = {
 }
 
 VALVE_PINS = {
-    1: 24,  # Valve 1 (Vodka reservoir)
+    1: 27,  # Valve 1 (Vodka reservoir) - YOUR PROTOTYPE
     2: 25,  # Valve 2 (Rum reservoir)
     3: 5,   # Valve 3 (Orange Juice reservoir)
     4: 6    # Valve 4 (Cranberry Juice reservoir)

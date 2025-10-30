@@ -1,6 +1,6 @@
 """
 Hardware Control Module for Smart Bartender
-Manages GPIO control for pumps, valves, and float switches using gpiozero
+Manages GPIO control for pumps, valves, and float switches
 """
 
 import time
@@ -9,11 +9,11 @@ import threading
 from typing import Dict, Optional
 
 try:
-    from gpiozero import OutputDevice, InputDevice
+    import lgpio
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
-    print("WARNING: gpiozero not available. Running in simulation mode.")
+    print("WARNING: lgpio not available. Running in simulation mode.")
 
 import config
 
@@ -22,7 +22,6 @@ class BartenderHardware:
     """
     Controls all hardware components of the Smart Bartender system.
     Manages pumps, valves, float switches, and automatic reservoir refilling.
-    Uses gpiozero for GPIO control.
     """
 
     def __init__(self, simulation_mode: bool = False):
@@ -33,13 +32,9 @@ class BartenderHardware:
             simulation_mode: If True, simulate hardware without actual GPIO
         """
         self.simulation_mode = simulation_mode or not GPIO_AVAILABLE
+        self.gpio_handle = None
         self.running = False
         self.monitor_thread = None
-
-        # GPIO devices (gpiozero objects)
-        self.pumps: Dict[int, Optional[OutputDevice]] = {}
-        self.valves: Dict[int, Optional[OutputDevice]] = {}
-        self.floats: Dict[int, Optional[InputDevice]] = {}
 
         # Track reservoir levels (estimated)
         self.reservoir_levels: Dict[int, float] = {
@@ -80,28 +75,32 @@ class BartenderHardware:
         self._start_monitoring()
 
     def _init_gpio(self):
-        """Initialize GPIO pins using gpiozero"""
+        """Initialize GPIO pins and set default states"""
         if self.simulation_mode:
             self.logger.info("Running in SIMULATION MODE - no actual GPIO control")
             return
 
         try:
-            # Initialize pumps (active LOW relays)
+            # Open GPIO chip (gpiochip4 for Raspberry Pi 5)
+            self.gpio_handle = lgpio.gpiochip_open(0)  # Usually 0 maps to gpiochip4
+            self.logger.info(f"GPIO chip opened: {self.gpio_handle}")
+
+            # Configure pump pins (outputs, initially HIGH = relay OFF)
             for pump_num, pin in config.PUMP_PINS.items():
-                self.pumps[pump_num] = OutputDevice(pin, active_high=False, initial_value=False)
-                self.logger.info(f"Pump {pump_num} on GPIO {pin} initialized (OFF)")
+                lgpio.gpio_claim_output(self.gpio_handle, pin, 1)  # 1 = HIGH = OFF
+                self.logger.info(f"Pump {pump_num} pin {pin} initialized (OFF)")
 
-            # Initialize valves (active LOW relays)
+            # Configure valve pins (outputs, initially HIGH = relay OFF)
             for valve_num, pin in config.VALVE_PINS.items():
-                self.valves[valve_num] = OutputDevice(pin, active_high=False, initial_value=False)
-                self.logger.info(f"Valve {valve_num} on GPIO {pin} initialized (OFF)")
+                lgpio.gpio_claim_output(self.gpio_handle, pin, 1)  # 1 = HIGH = OFF
+                self.logger.info(f"Valve {valve_num} pin {pin} initialized (OFF)")
 
-            # Initialize float switches (with pull-up resistors)
+            # Configure float switch pins (inputs with pull-ups)
             for sensor_num, pin in config.FLOAT_PINS.items():
-                self.floats[sensor_num] = InputDevice(pin, pull_up=True)
-                self.logger.info(f"Float switch {sensor_num} on GPIO {pin} initialized")
+                lgpio.gpio_claim_input(self.gpio_handle, pin, lgpio.SET_PULL_UP)
+                self.logger.info(f"Float switch {sensor_num} pin {pin} initialized")
 
-            self.logger.info("All GPIO pins initialized successfully with gpiozero")
+            self.logger.info("All GPIO pins initialized successfully")
 
         except Exception as e:
             self.logger.error(f"Failed to initialize GPIO: {e}")
@@ -109,7 +108,7 @@ class BartenderHardware:
             self.logger.warning("Falling back to simulation mode")
 
     def activate_pump(self, pump_num: int):
-        """Turn on a pump (activate relay)"""
+        """Turn on a pump (set GPIO LOW to activate relay)"""
         if pump_num not in config.PUMP_PINS:
             raise ValueError(f"Invalid pump number: {pump_num}")
 
@@ -118,13 +117,14 @@ class BartenderHardware:
             return
 
         try:
-            self.pumps[pump_num].on()  # Relay ON
-            self.logger.info(f"Pump {pump_num} activated")
+            pin = config.PUMP_PINS[pump_num]
+            lgpio.gpio_write(self.gpio_handle, pin, 0)  # LOW = relay ON
+            self.logger.info(f"Pump {pump_num} activated (pin {pin} LOW)")
         except Exception as e:
             self.logger.error(f"Failed to activate pump {pump_num}: {e}")
 
     def deactivate_pump(self, pump_num: int):
-        """Turn off a pump (deactivate relay)"""
+        """Turn off a pump (set GPIO HIGH to deactivate relay)"""
         if pump_num not in config.PUMP_PINS:
             raise ValueError(f"Invalid pump number: {pump_num}")
 
@@ -133,13 +133,14 @@ class BartenderHardware:
             return
 
         try:
-            self.pumps[pump_num].off()  # Relay OFF
-            self.logger.info(f"Pump {pump_num} deactivated")
+            pin = config.PUMP_PINS[pump_num]
+            lgpio.gpio_write(self.gpio_handle, pin, 1)  # HIGH = relay OFF
+            self.logger.info(f"Pump {pump_num} deactivated (pin {pin} HIGH)")
         except Exception as e:
             self.logger.error(f"Failed to deactivate pump {pump_num}: {e}")
 
     def open_valve(self, valve_num: int):
-        """Open a valve (activate relay)"""
+        """Open a valve (set GPIO LOW to activate relay)"""
         if valve_num not in config.VALVE_PINS:
             raise ValueError(f"Invalid valve number: {valve_num}")
 
@@ -148,13 +149,14 @@ class BartenderHardware:
             return
 
         try:
-            self.valves[valve_num].on()  # Relay ON
-            self.logger.info(f"Valve {valve_num} opened")
+            pin = config.VALVE_PINS[valve_num]
+            lgpio.gpio_write(self.gpio_handle, pin, 0)  # LOW = relay ON
+            self.logger.info(f"Valve {valve_num} opened (pin {pin} LOW)")
         except Exception as e:
             self.logger.error(f"Failed to open valve {valve_num}: {e}")
 
     def close_valve(self, valve_num: int):
-        """Close a valve (deactivate relay)"""
+        """Close a valve (set GPIO HIGH to deactivate relay)"""
         if valve_num not in config.VALVE_PINS:
             raise ValueError(f"Invalid valve number: {valve_num}")
 
@@ -163,8 +165,9 @@ class BartenderHardware:
             return
 
         try:
-            self.valves[valve_num].off()  # Relay OFF
-            self.logger.info(f"Valve {valve_num} closed")
+            pin = config.VALVE_PINS[valve_num]
+            lgpio.gpio_write(self.gpio_handle, pin, 1)  # HIGH = relay OFF
+            self.logger.info(f"Valve {valve_num} closed (pin {pin} HIGH)")
         except Exception as e:
             self.logger.error(f"Failed to close valve {valve_num}: {e}")
 
@@ -185,8 +188,10 @@ class BartenderHardware:
             return level_ok
 
         try:
+            pin = config.FLOAT_PINS[sensor_num]
+            state = lgpio.gpio_read(self.gpio_handle, pin)
             # HIGH (1) = level OK, LOW (0) = level low
-            return self.floats[sensor_num].is_active
+            return state == 1
         except Exception as e:
             self.logger.error(f"Failed to read float switch {sensor_num}: {e}")
             return True  # Assume OK on error
@@ -355,20 +360,10 @@ class BartenderHardware:
             for valve_num in config.VALVE_PINS.keys():
                 self.close_valve(valve_num)
 
-            # Close all GPIO devices
-            for pump in self.pumps.values():
-                if pump:
-                    pump.close()
-
-            for valve in self.valves.values():
-                if valve:
-                    valve.close()
-
-            for float_switch in self.floats.values():
-                if float_switch:
-                    float_switch.close()
-
-            self.logger.info("All GPIO devices closed")
+            # Close GPIO chip
+            if self.gpio_handle is not None:
+                lgpio.gpiochip_close(self.gpio_handle)
+                self.logger.info("GPIO chip closed")
 
         except Exception as e:
             self.logger.error(f"Error during cleanup: {e}")
