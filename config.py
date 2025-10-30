@@ -6,7 +6,7 @@ Contains all hardware mappings, calibration values, and system settings
 # GPIO Pin Mappings (BCM numbering)
 PUMP_PINS = {
     1: 17,  # Pump 1 (Vodka)
-    2: 27,  # Pump 2 (Rum)
+    2: 26,  # Pump 2 (Rum)
     3: 22,  # Pump 3 (Orange Juice)
     4: 23   # Pump 4 (Cranberry Juice)
 }
