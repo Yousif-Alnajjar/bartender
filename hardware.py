@@ -86,14 +86,14 @@ class BartenderHardware:
             return
 
         try:
-            # Initialize pumps (active LOW relays)
+            # Initialize pumps (active HIGH)
             for pump_num, pin in config.PUMP_PINS.items():
-                self.pumps[pump_num] = OutputDevice(pin, active_high=False, initial_value=False)
+                self.pumps[pump_num] = OutputDevice(pin, active_high=True, initial_value=False)
                 self.logger.info(f"Pump {pump_num} on GPIO {pin} initialized (OFF)")
 
-            # Initialize valves (active LOW relays)
+            # Initialize valves (active HIGH)
             for valve_num, pin in config.VALVE_PINS.items():
-                self.valves[valve_num] = OutputDevice(pin, active_high=False, initial_value=False)
+                self.valves[valve_num] = OutputDevice(pin, active_high=True, initial_value=False)
                 self.logger.info(f"Valve {valve_num} on GPIO {pin} initialized (OFF)")
 
             # Initialize float switches (with pull-up resistors)
