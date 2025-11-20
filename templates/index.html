@@ -10,11 +10,17 @@
     <div class="container">
         <header>
             <h1>Smart Bartender</h1>
-            <div id="status-message">Ready to serve</div>
+            <div id="status-message">
+                {% if hw_status.ready %}
+                    Ready to serve
+                {% else %}
+                    <span style="color: #ff5252;">⚠ Hardware Error: {{ hw_status.error }}</span>
+                {% endif %}
+            </div>
         </header>
         <div class="drink-grid">
             {% for drink in drinks %}
-            <button class="drink-btn" onclick="orderDrink('{{ drink }}')">
+            <button class="drink-btn" onclick="orderDrink('{{ drink }}')" {% if not hw_status.ready %}disabled{% endif %}>
                 <span class="icon">🍹</span>
                 <span class="name">{{ drink }}</span>
             </button>
@@ -24,4 +30,3 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
-
