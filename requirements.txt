@@ -1,4 +1,3 @@
-flask
+Flask
 gpiozero
-rpi.gpio
 

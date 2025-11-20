@@ -8,84 +8,20 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Select Your Drink</h1>
-            <div id="status-message">Ready to Serve</div>
-        </div>
-        
+        <header>
+            <h1>Smart Bartender</h1>
+            <div id="status-message">Ready to serve</div>
+        </header>
         <div class="drink-grid">
-            <button class="drink-btn" onclick="orderDrink('Vodka Cranberry')">
-                <span class="drink-name">Vodka Cranberry</span>
+            {% for drink in drinks %}
+            <button class="drink-btn" onclick="orderDrink('{{ drink }}')">
+                <span class="icon">🍹</span>
+                <span class="name">{{ drink }}</span>
             </button>
-            <button class="drink-btn" onclick="orderDrink('Screwdriver')">
-                <span class="drink-name">Screwdriver</span>
-            </button>
-            <button class="drink-btn" onclick="orderDrink('Rum Punch')">
-                <span class="drink-name">Rum Punch</span>
-            </button>
-            <button class="drink-btn" onclick="orderDrink('Madras')">
-                <span class="drink-name">Madras</span>
-            </button>
-            <button class="drink-btn" onclick="orderDrink('Bay Breeze')">
-                <span class="drink-name">Bay Breeze</span>
-            </button>
+            {% endfor %}
         </div>
     </div>
-
-    <script>
-        function orderDrink(drinkName) {
-            const statusDiv = document.getElementById('status-message');
-            const buttons = document.querySelectorAll('.drink-btn');
-            
-            // Disable buttons
-            buttons.forEach(btn => btn.disabled = true);
-            statusDiv.textContent = `Preparing ${drinkName}...`;
-            statusDiv.className = 'status-busy';
-
-            fetch('/dispense', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ drink: drinkName }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Wait for the dispense duration (approx 30s + 6s overhead) 
-                    // or just show a busy state until we want to reset.
-                    // Since the server thread runs for ~36s, we can set a timeout to re-enable.
-                    let countdown = 36;
-                    const interval = setInterval(() => {
-                        countdown--;
-                        if (countdown <= 0) {
-                            clearInterval(interval);
-                            resetUI();
-                        } else {
-                            statusDiv.textContent = `Dispensing ${drinkName}... (${countdown}s)`;
-                        }
-                    }, 1000);
-                } else {
-                    statusDiv.textContent = `Error: ${data.message}`;
-                    setTimeout(resetUI, 3000);
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                statusDiv.textContent = 'Communication Error';
-                setTimeout(resetUI, 3000);
-            });
-        }
-
-        function resetUI() {
-            const statusDiv = document.getElementById('status-message');
-            const buttons = document.querySelectorAll('.drink-btn');
-            
-            statusDiv.textContent = 'Ready to Serve';
-            statusDiv.className = '';
-            buttons.forEach(btn => btn.disabled = false);
-        }
-    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
 

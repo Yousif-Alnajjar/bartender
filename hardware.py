@@ -1,63 +1,62 @@
-import threading
-import time
 from gpiozero import LED
+from time import sleep
+import threading
 
-class Bartender:
-    def __init__(self):
-        self.is_pouring = False
-        # STRICTLY HARDWARE MODE - NO SIMULATION
-        # This drives your MOSFET gate on GPIO 17
-        print("Initializing Hardware on GPIO 17...")
-        self.valve = LED(17)
-        # Ensure it's off initially
-        self.valve.off()
-        print("Hardware Initialized.")
+# Setup valve on GPIO17 as per test.py
+# using LED class as it was used in test.py for simple on/off control
+valve = LED(17)
+valve.off()
 
-    def pour_drink(self, drink_name):
-        if self.is_pouring:
-            return False, "Bartender is busy pouring another drink."
+# Lock to prevent multiple pours at the same time
+pour_lock = threading.Lock()
+
+def pour_demo_sequence():
+    """
+    Runs the sequence defined in test.py:
+    1. Ensure off
+    2. Wait 1s
+    3. Turn on for 30s (simulating pour)
+    4. Turn off
+    5. Wait 1s
+    
+    Note: Lock is acquired by the caller (start_pour) and released here.
+    """
+    try:
+        print("Solenoid test starting")
+        valve.off()
+        sleep(1)
         
-        # Start pouring in a separate thread to not block the web server
-        thread = threading.Thread(target=self._pour_sequence, args=(drink_name,))
-        thread.start()
-        return True, f"Pouring {drink_name}..."
-
-    def _pour_sequence(self, drink_name):
-        self.is_pouring = True
-        print(f"DEMO MODE: Starting to pour {drink_name} using GPIO 17")
+        print("Valve ON")
+        valve.on()
+        # The user's test.py had 30 seconds.
+        sleep(30)
         
-        try:
-            # Logic from test.py
-            print("Solenoid sequence starting")
-            
-            # Make sure it starts off
-            self.valve.off()
-            time.sleep(1) 
-            
-            # Turn it on (originally for 30 seconds in test.py)
-            print("Valve ON")
-            self.valve.on()
-            
-            # Pour duration
-            time.sleep(30) 
-            
-            # Turn it off
-            print("Valve OFF")
-            self.valve.off()
-            time.sleep(1)
-            
-            print("Sequence complete")
-                
-        except Exception as e:
-            print(f"Error pouring drink: {e}")
-            # Ensure valve is off if error occurs
-            try:
-                self.valve.off()
-            except:
-                pass
-        finally:
-            self.is_pouring = False
-            print(f"Finished pouring {drink_name}")
+        print("Valve OFF")
+        valve.off()
+        sleep(1)
+        print("Test complete")
+    except Exception as e:
+        print(f"Error during pour: {e}")
+        # Ensure valve is off if error
+        valve.off()
+    finally:
+        # Always release the lock when done
+        pour_lock.release()
 
-# Global instance
-bartender = Bartender()
+def start_pour():
+    """
+    Starts the pour sequence in a background thread if not already running.
+    Returns True if started, False if busy.
+    """
+    # Try to acquire lock non-blocking
+    if not pour_lock.acquire(blocking=False):
+        return False
+    
+    try:
+        t = threading.Thread(target=pour_demo_sequence)
+        t.start()
+        return True
+    except Exception as e:
+        print(f"Failed to start pour thread: {e}")
+        pour_lock.release()
+        return False
