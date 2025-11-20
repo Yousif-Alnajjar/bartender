@@ -50,4 +50,6 @@ if __name__ == '__main__':
         print("App will run, but pouring will fail until GPIO is free.")
     
     # Host on 0.0.0.0 to be accessible on the network
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # use_reloader=False prevents the Flask debug reloader from starting a second process
+    # which would cause a 'GPIO busy' error by trying to initialize the hardware twice.
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
