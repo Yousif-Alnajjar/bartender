@@ -10,6 +10,10 @@ function selectDrink(drinkId, drinkName) {
     statusIndicator.classList.add('busy');
     statusIndicator.classList.remove('ready');
 
+    // Start visual progress bar locally since we know it takes 30s
+    startProgress();
+
+    // Trigger blocking request
     fetch('/pour', {
         method: 'POST',
         headers: {
@@ -20,7 +24,8 @@ function selectDrink(drinkId, drinkName) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            startProgress();
+            // Backend returned, meaning pour is done.
+            finishProgress();
         } else {
             alert(data.message);
             resetUI();
@@ -36,39 +41,33 @@ function selectDrink(drinkId, drinkName) {
 function startProgress() {
     const fill = document.querySelector('.progress-fill');
     let width = 0;
-    // The backend process takes roughly 30 seconds based on test.py
-    const duration = 30000; 
+    // The hardware takes roughly 30 seconds + small buffers
+    const duration = 31000; 
     const intervalTime = 100;
     const step = 100 / (duration / intervalTime);
 
-    const interval = setInterval(() => {
+    window.pourInterval = setInterval(() => {
         width += step;
-        if (width >= 100) {
-            width = 100;
+        if (width >= 95) {
+            // Stall at 95% until server confirms completion
+            width = 95;
         }
         fill.style.width = width + '%';
-        
-        // Poll status to see if actually finished
-        checkStatus(interval);
-        
     }, intervalTime);
 }
 
-function checkStatus(progressInterval) {
-    fetch('/status')
-    .then(response => response.json())
-    .then(data => {
-        if (!data.is_pouring) {
-            clearInterval(progressInterval);
-            document.querySelector('.progress-fill').style.width = '100%';
-            setTimeout(() => {
-                resetUI();
-            }, 1000);
-        }
-    });
+function finishProgress() {
+    if (window.pourInterval) clearInterval(window.pourInterval);
+    
+    document.querySelector('.progress-fill').style.width = '100%';
+    setTimeout(() => {
+        resetUI();
+    }, 1000);
 }
 
 function resetUI() {
+    if (window.pourInterval) clearInterval(window.pourInterval);
+    
     const overlay = document.getElementById('overlay');
     const statusIndicator = document.getElementById('status-indicator');
     
@@ -79,4 +78,3 @@ function resetUI() {
     statusIndicator.classList.remove('busy');
     statusIndicator.classList.add('ready');
 }
-
