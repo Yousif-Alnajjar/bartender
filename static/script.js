@@ -1,66 +1,82 @@
-// Poll interval (milliseconds)
-const POLL_INTERVAL = 2000;
+function selectDrink(drinkId, drinkName) {
+    // Show overlay immediately
+    const overlay = document.getElementById('overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const statusIndicator = document.getElementById('status-indicator');
+    
+    overlay.classList.remove('hidden');
+    modalTitle.textContent = `Pouring ${drinkName}`;
+    statusIndicator.textContent = 'Busy';
+    statusIndicator.classList.add('busy');
+    statusIndicator.classList.remove('ready');
 
-// Start polling when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    updateStatus();
-    setInterval(updateStatus, POLL_INTERVAL);
-});
-
-/**
- * Fetch current system status and update UI
- */
-async function updateStatus() {
-    try {
-        const response = await fetch('/api/status');
-        const data = await response.json();
-
-        const buttons = document.querySelectorAll('.drink-btn');
-
-        // Update button states based on pouring status
-        if (data.pouring && data.current_drink) {
-            buttons.forEach(button => {
-                const drinkName = button.getAttribute('data-drink');
-                if (drinkName === data.current_drink) {
-                    button.classList.add('pouring');
-                    button.disabled = true;
-                } else {
-                    button.classList.remove('pouring');
-                    button.disabled = true;
-                }
-            });
+    fetch('/pour', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ drink_id: drinkId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            startProgress();
         } else {
-            buttons.forEach(button => {
-                button.classList.remove('pouring');
-                button.disabled = false;
-            });
+            alert(data.message);
+            resetUI();
         }
-
-    } catch (error) {
-        console.error('Error fetching status:', error);
-    }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Failed to communicate with bartender.');
+        resetUI();
+    });
 }
 
-/**
- * Order a drink
- */
-async function pourDrink(drinkName) {
-    try {
-        const response = await fetch(`/api/pour/${encodeURIComponent(drinkName)}`, {
-            method: 'POST'
-        });
+function startProgress() {
+    const fill = document.querySelector('.progress-fill');
+    let width = 0;
+    // The backend process takes roughly 30 seconds based on test.py
+    const duration = 30000; 
+    const intervalTime = 100;
+    const step = 100 / (duration / intervalTime);
 
-        if (response.ok) {
-            console.log(`Ordered: ${drinkName}`);
-            // Status polling will update UI automatically
-        } else {
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
+    const interval = setInterval(() => {
+        width += step;
+        if (width >= 100) {
+            width = 100;
         }
+        fill.style.width = width + '%';
+        
+        // Poll status to see if actually finished
+        checkStatus(interval);
+        
+    }, intervalTime);
+}
 
-    } catch (error) {
-        console.error('Error ordering drink:', error);
-        alert('Failed to order drink. Please try again.');
-    }
+function checkStatus(progressInterval) {
+    fetch('/status')
+    .then(response => response.json())
+    .then(data => {
+        if (!data.is_pouring) {
+            clearInterval(progressInterval);
+            document.querySelector('.progress-fill').style.width = '100%';
+            setTimeout(() => {
+                resetUI();
+            }, 1000);
+        }
+    });
+}
+
+function resetUI() {
+    const overlay = document.getElementById('overlay');
+    const statusIndicator = document.getElementById('status-indicator');
+    
+    overlay.classList.add('hidden');
+    document.querySelector('.progress-fill').style.width = '0%';
+    
+    statusIndicator.textContent = 'Ready';
+    statusIndicator.classList.remove('busy');
+    statusIndicator.classList.add('ready');
 }
 

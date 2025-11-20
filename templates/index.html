@@ -5,29 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Bartender</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- Drink Buttons - All redirect to test page -->
-        <div class="drinks-container">
-            <button class="drink-btn" onclick="window.location.href='/test'">
-                <span class="drink-name">Vodka Cranberry</span>
-            </button>
-            <button class="drink-btn" onclick="window.location.href='/test'">
-                <span class="drink-name">Screwdriver</span>
-            </button>
-            <button class="drink-btn" onclick="window.location.href='/test'">
-                <span class="drink-name">Rum Punch</span>
-            </button>
-            <button class="drink-btn" onclick="window.location.href='/test'">
-                <span class="drink-name">Madras</span>
-            </button>
-            <button class="drink-btn" onclick="window.location.href='/test'">
-                <span class="drink-name">Bay Breeze</span>
-            </button>
+        <header>
+            <h1>Smart Bartender</h1>
+            <div id="status-indicator" class="ready">Ready</div>
+        </header>
+        
+        <div class="drinks-grid" id="drinks-container">
+            {% for drink in drinks %}
+            <div class="drink-card" onclick="selectDrink('{{ drink.id }}', '{{ drink.name }}')" style="--drink-color: {{ drink.color }}">
+                <div class="drink-icon"></div>
+                <h2>{{ drink.name }}</h2>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="overlay" class="hidden">
+            <div class="modal">
+                <h2 id="modal-title">Pouring...</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p id="modal-message">Please wait while we mix your drink.</p>
+            </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
+
