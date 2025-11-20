@@ -27,9 +27,9 @@
         </header>
         <div class="drink-grid">
             {% for drink in drinks %}
-            <button class="drink-btn" onclick="orderDrink('{{ drink }}')" {% if not hw_status.ready %}disabled{% endif %}>
-                <span class="material-icons icon">local_bar</span>
-                <span class="name">{{ drink }}</span>
+            <button class="drink-btn {{ drink.color }}" onclick="orderDrink('{{ drink.name }}')" {% if not hw_status.ready %}disabled{% endif %}>
+                <span class="material-icons icon">{{ drink.icon }}</span>
+                <span class="name">{{ drink.name }}</span>
             </button>
             {% endfor %}
         </div>

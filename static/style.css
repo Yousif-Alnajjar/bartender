@@ -96,7 +96,6 @@ h1 {
 .drink-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-    border-color: #bb86fc;
 }
 
 .drink-btn:active {
@@ -115,12 +114,7 @@ h1 {
 .drink-btn .icon {
     font-size: 48px;
     margin-bottom: 15px;
-    color: #bb86fc;
     transition: color 0.3s;
-}
-
-.drink-btn:hover .icon {
-    color: #03dac6;
 }
 
 .drink-btn .name {
@@ -129,6 +123,34 @@ h1 {
     text-align: center;
     letter-spacing: 0.5px;
 }
+
+/* Drink Specific Styles */
+
+/* Vodka Cranberry - Red */
+.drink-btn.red .icon { color: #ef5350; }
+.drink-btn.red:hover { border-color: #ef5350; }
+.drink-btn.red:hover .icon { text-shadow: 0 0 10px rgba(239, 83, 80, 0.5); }
+
+/* Screwdriver - Orange */
+.drink-btn.orange .icon { color: #ffa726; }
+.drink-btn.orange:hover { border-color: #ffa726; }
+.drink-btn.orange:hover .icon { text-shadow: 0 0 10px rgba(255, 167, 38, 0.5); }
+
+/* Rum Punch - Deep Red/Purple */
+.drink-btn.punch .icon { color: #ab47bc; }
+.drink-btn.punch:hover { border-color: #ab47bc; }
+.drink-btn.punch:hover .icon { text-shadow: 0 0 10px rgba(171, 71, 188, 0.5); }
+
+/* Madras - Pink/Orange Mix - using Pink here */
+.drink-btn.madras .icon { color: #f06292; }
+.drink-btn.madras:hover { border-color: #f06292; }
+.drink-btn.madras:hover .icon { text-shadow: 0 0 10px rgba(240, 98, 146, 0.5); }
+
+/* Bay Breeze - Blue/Cyan */
+.drink-btn.blue .icon { color: #26c6da; }
+.drink-btn.blue:hover { border-color: #26c6da; }
+.drink-btn.blue:hover .icon { text-shadow: 0 0 10px rgba(38, 198, 218, 0.5); }
+
 
 /* Status indicating pouring */
 body.pouring .drink-btn {

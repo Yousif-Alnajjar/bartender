@@ -5,11 +5,31 @@ import sys
 app = Flask(__name__)
 
 DRINKS = [
-    "Vodka Cranberry",
-    "Screwdriver",
-    "Rum Punch",
-    "Madras",
-    "Bay Breeze"
+    {
+        "name": "Vodka Cranberry",
+        "icon": "local_bar", # Standard cocktail
+        "color": "red"
+    },
+    {
+        "name": "Screwdriver",
+        "icon": "emoji_food_beverage", # Juice/Coffee cup style
+        "color": "orange"
+    },
+    {
+        "name": "Rum Punch",
+        "icon": "liquor", # Bottle/Jug
+        "color": "punch"
+    },
+    {
+        "name": "Madras",
+        "icon": "wine_bar", # Stemmed glass
+        "color": "madras"
+    },
+    {
+        "name": "Bay Breeze",
+        "icon": "water_drop", # Refreshing/Blue
+        "color": "blue"
+    }
 ]
 
 # Global status for UI to query hardware state on load
