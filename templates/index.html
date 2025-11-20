@@ -5,23 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Bartender</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Simple icon set -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Smart Bartender</h1>
-            <div id="status-message">
-                {% if hw_status.ready %}
-                    Ready to serve
-                {% else %}
-                    <span style="color: #ff5252;">⚠ Hardware Error: {{ hw_status.error }}</span>
-                {% endif %}
+            <div id="status-container">
+                <div id="status-message">
+                    {% if hw_status.ready %}
+                        Ready to serve
+                    {% else %}
+                        <span style="color: #ff5252;">⚠ Hardware Error: {{ hw_status.error }}</span>
+                    {% endif %}
+                </div>
+                <div id="progress-bar-container" style="display: none;">
+                    <div id="progress-bar"></div>
+                </div>
             </div>
         </header>
         <div class="drink-grid">
             {% for drink in drinks %}
             <button class="drink-btn" onclick="orderDrink('{{ drink }}')" {% if not hw_status.ready %}disabled{% endif %}>
-                <span class="icon">🍹</span>
+                <span class="material-icons icon">local_bar</span>
                 <span class="name">{{ drink }}</span>
             </button>
             {% endfor %}
