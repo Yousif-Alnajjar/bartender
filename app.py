@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-import hardware
+from hardware import bartender
 
 app = Flask(__name__)
 
@@ -23,14 +23,19 @@ def pour():
     
     if not drink:
         return jsonify({"status": "error", "message": "Invalid drink selection"}), 400
+        
+    success, message = bartender.pour_drink(drink['name'])
     
-    # This will BLOCK for 30+ seconds while pouring
-    try:
-        hardware.pour_drink(drink['name'])
-        return jsonify({"status": "success", "message": f"Enjoy your {drink['name']}!"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    if success:
+        return jsonify({"status": "success", "message": message})
+    else:
+        return jsonify({"status": "busy", "message": message}), 409
+
+@app.route('/status')
+def status():
+    return jsonify({"is_pouring": bartender.is_pouring})
 
 if __name__ == '__main__':
     # Run on all interfaces, port 5000
     app.run(host='0.0.0.0', port=5000, debug=True)
+

@@ -1,2 +1,4 @@
 flask
 gpiozero
+lgpio
+rpi-lgpio
